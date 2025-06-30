@@ -1,17 +1,20 @@
 #![no_std]
 #![no_main]
 #![feature(proc_macro_hygiene)]
+#![feature(alloc_error_handler)]
 
 extern crate alloc;
 
 use buddy_system_allocator::LockedHeap;
+use test::test_panic;
 
 #[macro_use]
 mod print;
 mod panic;
+mod test;
 
 #[global_allocator]
-static ALLOCATOR: LockedHeap<4096> = LockedHeap::empty();
+static HEAP_ALLOCATOR: LockedHeap<32> = LockedHeap::<32>::new();
 
 use print::uart_init;
 
@@ -74,10 +77,34 @@ pub extern "C" fn _start() -> ! {
     }
 }
 
+const HV_HEAP_SIZE: usize = 4096 * 1024;
+
+fn heap_init() {
+    const MACHINE_ALIGN: usize = core::mem::size_of::<usize>();
+    const HEAP_BLOCK: usize = HV_HEAP_SIZE / MACHINE_ALIGN;
+    static mut HEAP: [usize; HEAP_BLOCK] = [0; HEAP_BLOCK];
+    #[allow(static_mut_refs)]
+    let heap_start = {
+        let heap_ptr = unsafe { HEAP.as_ptr() };
+        heap_ptr as usize
+    };
+    unsafe {
+        HEAP_ALLOCATOR
+            .lock()
+            .init(heap_start, HEAP_BLOCK * MACHINE_ALIGN);
+    }
+    println!(
+        "heap allocator initialization finished: {:#x?}",
+        heap_start..heap_start + HV_HEAP_SIZE
+    );
+}
+
 #[unsafe(no_mangle)]
 pub extern "C" fn rust_main() -> ! {
     uart_init();
-    println!("Hello, world! {}", 42);
+    heap_init();
+    println!("hello world! {}", 42);
+    test_panic();
     loop {
         // Idle loop
     }

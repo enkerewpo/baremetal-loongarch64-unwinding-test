@@ -1,11 +1,9 @@
 use core::ffi::c_void;
 use gimli::Register;
-use spin::Mutex;
 use unwinding::abi::{
     _Unwind_Backtrace, _Unwind_FindEnclosingFunction, _Unwind_GetGR, _Unwind_GetIP, UnwindContext,
     UnwindReasonCode,
 };
-pub use unwinding::panic::{begin_panic, catch_unwind};
 
 #[panic_handler]
 fn panic(info: &core::panic::PanicInfo) -> ! {
@@ -17,23 +15,24 @@ fn panic(info: &core::panic::PanicInfo) -> ! {
 
 #[unsafe(no_mangle)]
 pub fn __panic_handler(info: &core::panic::PanicInfo) -> ! {
-    println!("PANIC: {:?}", info);
+    println!(
+        "panic at {:?}, reason: {:?}",
+        info.location().unwrap(),
+        info.message().as_str().unwrap_or("")
+    );
     print_stack_trace();
+    println!("enter loop");
     loop {}
 }
 
 pub fn print_stack_trace() {
-    /// We acquire a global lock to prevent the frames in the stack trace from
-    /// interleaving. The spin lock is used merely for its simplicity.
-    static BACKTRACE_PRINT_LOCK: Mutex<()> = Mutex::new(());
-    let _lock = BACKTRACE_PRINT_LOCK.lock();
-
     println!("Printing stack trace:");
 
     struct CallbackData {
         counter: usize,
     }
     extern "C" fn callback(unwind_ctx: &UnwindContext<'_>, arg: *mut c_void) -> UnwindReasonCode {
+        println!("callback");
         let data = unsafe { &mut *(arg as *mut CallbackData) };
         data.counter += 1;
         let pc = _Unwind_GetIP(unwind_ctx);
