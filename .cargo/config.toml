@@ -1,0 +1,6 @@
+[target.loongarch64-unknown-none]
+rustflags = [
+    "-Clink-arg=-Tlinker.ld",
+    "-Ctarget-feature=-lsx",
+    "-Cforce-frame-pointers=yes",
+]
