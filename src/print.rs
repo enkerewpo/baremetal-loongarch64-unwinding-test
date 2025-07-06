@@ -25,7 +25,13 @@ struct UartWriter;
 
 impl Write for UartWriter {
     fn write_str(&mut self, s: &str) -> fmt::Result {
-        UART.lock().write_str(s).unwrap();
+        // UART.lock().write_str(s).unwrap();
+        for c in s.chars() {
+            if c == '\n' {
+                UART.lock().write_char('\r').unwrap();
+            }
+            UART.lock().write_char(c).unwrap();
+        }
         Ok(())
     }
 }

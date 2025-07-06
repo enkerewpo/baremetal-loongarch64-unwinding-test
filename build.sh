@@ -26,7 +26,8 @@ file $TARGET_FILE
 if [ $DEBUG -eq 1 ]; then
     echo "dumping debug info..."
     $OBJDUMP -d -S $TARGET_FILE > $TARGET_FILE.asm
-    $READELF -a $TARGET_FILE > $TARGET_FILE.readelf
     $READELF -wf $TARGET_FILE > $TARGET_FILE.eh_frame_hdr
+    $READELF -a $TARGET_FILE > $TARGET_FILE.readelf
+    $OBJCOPY -O binary $TARGET_FILE $TARGET_FILE.bin
     echo "done"
 fi

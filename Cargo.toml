@@ -9,6 +9,7 @@ log = "0.4"
 spin = "0.10.0"
 buddy_system_allocator = "0.11.0"
 tock-registers = "0.10.0"
+loongArch64 = "0.2.5"
 
 [dependencies.unwinding]
 path = "../unwinding"

@@ -6,7 +6,7 @@
 extern crate alloc;
 
 use buddy_system_allocator::LockedHeap;
-use test::test_panic;
+use test::{test_panic, test_vtimer};
 
 #[macro_use]
 mod print;
@@ -77,7 +77,7 @@ pub extern "C" fn _start() -> ! {
     }
 }
 
-const HV_HEAP_SIZE: usize = 4096 * 1024;
+const HV_HEAP_SIZE: usize = 4096;
 
 fn heap_init() {
     const MACHINE_ALIGN: usize = core::mem::size_of::<usize>();
@@ -104,7 +104,9 @@ pub extern "C" fn rust_main() -> ! {
     uart_init();
     heap_init();
     println!("hello world! {}", 42);
-    test_panic();
+    // test_panic();
+    test_vtimer();
+    println!("going to idle loop");
     loop {
         // Idle loop
     }
