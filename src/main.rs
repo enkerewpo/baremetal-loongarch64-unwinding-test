@@ -6,6 +6,7 @@
 extern crate alloc;
 
 use buddy_system_allocator::LockedHeap;
+use loongArch64::register::*;
 use test::{test_panic, test_vtimer};
 
 #[macro_use]
@@ -101,13 +102,42 @@ fn heap_init() {
 
 #[unsafe(no_mangle)]
 pub extern "C" fn rust_main() -> ! {
+    let busy_loop_wait = 1e7 as usize;
+    let mut x = 0;
+    for i in 0..busy_loop_wait {
+        x = x + 1;
+    }
     uart_init();
     heap_init();
     println!("hello world! {}", 42);
     // test_panic();
+
+    // set global trap handler
+    set_global_trap_handler(trap_handler);
+
     test_vtimer();
     println!("going to idle loop");
     loop {
         // Idle loop
     }
+}
+
+#[unsafe(link_section = ".text.eentry")]
+#[unsafe(no_mangle)]
+pub extern "C" fn trap_handler() -> ! {
+    let ecode = estat::read().ecode();
+    let is = estat::read().is();
+    println!("trap handler: ecode: {:#x}, is: {:#x}", ecode, is);
+    ticlr::clear_timer_interrupt();
+    crmd::set_ie(true);
+    loop {
+        // Idle loop
+    }
+}
+
+fn set_global_trap_handler(handler: extern "C" fn() -> !) {
+    ecfg::set_vs(0);
+    ecfg::set_lie(ecfg::LineBasedInterrupt::TIMER);
+    eentry::set_eentry(handler as usize);
+    crmd::set_ie(true);
 }

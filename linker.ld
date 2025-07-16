@@ -6,8 +6,11 @@ SECTIONS
     . = 0x9000000000200000;
     
     __kernel_start = .;
+    
+    . = ALIGN(4096);
 
     .text : {
+        *(.text.eentry)
         *(.text.start)
         *(.text .text.*)
         PROVIDE(__etext = .);
