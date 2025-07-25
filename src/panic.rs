@@ -7,6 +7,11 @@ use unwinding::abi::{
 
 #[panic_handler]
 fn panic(info: &core::panic::PanicInfo) -> ! {
+    println!(
+        "(panic) panic at {:?}, reason: {:?}",
+        info.location().unwrap(),
+        info.message().as_str().unwrap_or("")
+    );
     unsafe extern "Rust" {
         pub fn __panic_handler(info: &core::panic::PanicInfo) -> !;
     }
@@ -16,7 +21,7 @@ fn panic(info: &core::panic::PanicInfo) -> ! {
 #[unsafe(no_mangle)]
 pub fn __panic_handler(info: &core::panic::PanicInfo) -> ! {
     println!(
-        "panic at {:?}, reason: {:?}",
+        "(__panic_handler) panic at {:?}, reason: {:?}",
         info.location().unwrap(),
         info.message().as_str().unwrap_or("")
     );
@@ -26,13 +31,13 @@ pub fn __panic_handler(info: &core::panic::PanicInfo) -> ! {
 }
 
 pub fn print_stack_trace() {
-    println!("Printing stack trace:");
+    println!("printing stack trace...");
 
     struct CallbackData {
         counter: usize,
     }
     extern "C" fn callback(unwind_ctx: &UnwindContext<'_>, arg: *mut c_void) -> UnwindReasonCode {
-        println!("callback");
+        println!("callback...");
         let data = unsafe { &mut *(arg as *mut CallbackData) };
         data.counter += 1;
         let pc = _Unwind_GetIP(unwind_ctx);

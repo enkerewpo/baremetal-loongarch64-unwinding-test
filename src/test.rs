@@ -39,7 +39,7 @@ pub fn test_vtimer() {
 
     // test timer interrupt
     tcfg::set_periodic(true);
-    let hz = 1;
+    let hz = 100;
     let interval = freq / hz;
     println!("interval: {}", interval);
     tcfg::set_init_val(interval);

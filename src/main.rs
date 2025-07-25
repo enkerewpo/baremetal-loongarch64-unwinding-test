@@ -110,32 +110,43 @@ pub extern "C" fn rust_main() -> ! {
     uart_init();
     heap_init();
     println!("hello world! {}", 42);
-    // test_panic();
-
+    test_panic();
+    
     // set global trap handler
     set_global_trap_handler(trap_handler);
+    
+    // test_vtimer();
 
-    test_vtimer();
     println!("going to idle loop");
     loop {
         // Idle loop
     }
 }
 
+static mut SP: usize = 0;
+static mut COUNTER: usize = 0;
+
 #[unsafe(link_section = ".text.eentry")]
 #[unsafe(no_mangle)]
-pub extern "C" fn trap_handler() -> ! {
+pub extern "C" fn trap_handler() {
+    unsafe {
+        COUNTER += 1;
+    }
     let ecode = estat::read().ecode();
     let is = estat::read().is();
-    println!("trap handler: ecode: {:#x}, is: {:#x}", ecode, is);
+    if unsafe { COUNTER } % 100 == 0 {
+        println!(
+            "trap handler: ecode: {:#x}, is: {:#x}, counter: {}",
+            ecode,
+            is,
+            unsafe { COUNTER }
+        );
+    }
     ticlr::clear_timer_interrupt();
     crmd::set_ie(true);
-    loop {
-        // Idle loop
-    }
 }
 
-fn set_global_trap_handler(handler: extern "C" fn() -> !) {
+fn set_global_trap_handler(handler: extern "C" fn()) {
     ecfg::set_vs(0);
     ecfg::set_lie(ecfg::LineBasedInterrupt::TIMER);
     eentry::set_eentry(handler as usize);
