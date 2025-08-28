@@ -5,9 +5,28 @@ use loongArch64::{
 };
 use unwinding::panic::begin_panic;
 
-pub fn test_panic() {
-    println!("testing loongarch64 baremetal unwinding...");
+pub fn test_panic_level0() {
+    println!("testing loongarch64 baremetal panic level 0...");
+    test_panic_level1();
+}
+
+pub fn test_panic_level1() {
+    println!("testing loongarch64 baremetal panic level 1...");
+    test_panic_level2();
+}
+
+pub fn test_panic_level2() {
+    println!("testing loongarch64 baremetal panic level 2...");
+    test_panic_level3();
+}
+
+pub fn test_panic_level3() {
+    println!("testing loongarch64 baremetal panic level 3...");
     panic!("test panic for baremetal application using unwinding library");
+}
+
+pub fn test_panic() {
+    test_panic_level0();
 }
 
 pub fn test_vtimer() {
