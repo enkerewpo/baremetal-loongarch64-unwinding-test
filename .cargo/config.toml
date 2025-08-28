@@ -1,3 +1,9 @@
+[target.loongarch64-unknown-none]
+rustflags = [
+    "-Clink-arg=-Tlinker.ld",
+    "-Ctarget-feature=-lsx,-lasx",
+]
+
 [target.loongarch64-unknown-none-softfloat]
 rustflags = [
     "-Clink-arg=-Tlinker.ld",

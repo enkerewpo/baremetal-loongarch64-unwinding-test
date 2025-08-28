@@ -4,6 +4,7 @@ set -e
 
 DEBUG=${DEBUG:-0}
 TARGET=loongarch64-unknown-none-softfloat
+# TARGET=loongarch64-unknown-none
 
 echo "building baremetal LoongArch64 application..."
 
