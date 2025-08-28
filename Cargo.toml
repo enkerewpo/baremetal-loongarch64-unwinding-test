@@ -14,10 +14,10 @@ loongArch64 = "0.2.5"
 [dependencies.unwinding]
 path = "../unwinding"
 default-features = false
-features = ["fde-gnu-eh-frame-hdr", "hide-trace", "panic", "personality", "unwinder"]
+features = ["fde-gnu-eh-frame-hdr", "panic", "personality", "unwinder"]
 
 [dependencies.gimli]
-version = "0.32.0"
+version = "0.32.2"
 default-features = false
 features = ["read-core"]
 

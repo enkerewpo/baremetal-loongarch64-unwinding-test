@@ -20,8 +20,8 @@ pub fn __panic_handler(info: &core::panic::PanicInfo) -> ! {
         info.location().unwrap(),
         info.message().as_str().unwrap_or("")
     );
-    // print_stack_trace();
-    println!("enter loop");
+    print_stack_trace();
+    println!("halting, now we reach the end of the program");
     loop {}
 }
 
