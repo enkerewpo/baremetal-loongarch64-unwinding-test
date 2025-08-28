@@ -41,7 +41,7 @@ SECTIONS
         *(.bss .bss.*)
         *(COMMON)
         __stack_start = .;
-        . += 0x1000;
+        . += 0x10000;  // Increase stack size to 64KB
         __stack_end = .;
     }
     
@@ -49,7 +49,8 @@ SECTIONS
         *(.comment)
         *(.gnu*)
         *(.note*)
-        *(.eh_frame*)
+        // Don't discard eh_frame sections - they're needed for unwinding
+        // *(.eh_frame*)
     }
 
     __kernel_end = .;

@@ -7,11 +7,6 @@ use unwinding::abi::{
 
 #[panic_handler]
 fn panic(info: &core::panic::PanicInfo) -> ! {
-    println!(
-        "(panic) panic at {:?}, reason: {:?}",
-        info.location().unwrap(),
-        info.message().as_str().unwrap_or("")
-    );
     unsafe extern "Rust" {
         pub fn __panic_handler(info: &core::panic::PanicInfo) -> !;
     }
@@ -25,7 +20,7 @@ pub fn __panic_handler(info: &core::panic::PanicInfo) -> ! {
         info.location().unwrap(),
         info.message().as_str().unwrap_or("")
     );
-    print_stack_trace();
+    // print_stack_trace();
     println!("enter loop");
     loop {}
 }
