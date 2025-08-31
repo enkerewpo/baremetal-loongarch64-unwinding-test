@@ -8,6 +8,7 @@ extern crate alloc;
 use buddy_system_allocator::LockedHeap;
 use loongArch64::register::*;
 use test::{test_panic, test_vtimer};
+use unwinding::panic::catch_unwind;
 
 #[macro_use]
 mod print;
@@ -110,14 +111,22 @@ pub extern "C" fn rust_main() -> ! {
     uart_init();
     heap_init();
     println!("hello world! {}", 42);
-    test_panic();
-    
+
+    catch_unwind(|| {
+        println!("testing catch unwind...");
+        test_panic();
+        println!("testing catch unwind done");
+    })
+    .unwrap();
+
     // set global trap handler
     set_global_trap_handler(trap_handler);
-    
+
     // test_vtimer();
 
-    println!("going to idle loop");
+    // panic!("test panic! (rust)");
+
+    println!("going to idle loop, the main function is done");
     loop {
         // Idle loop
     }

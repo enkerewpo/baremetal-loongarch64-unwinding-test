@@ -1,9 +1,12 @@
 use core::ffi::c_void;
+use core::sync::atomic::{AtomicBool, Ordering};
 use gimli::Register;
 use unwinding::abi::{
     _Unwind_Backtrace, _Unwind_FindEnclosingFunction, _Unwind_GetGR, _Unwind_GetIP, UnwindContext,
     UnwindReasonCode,
 };
+
+static PANIC_IN_PROGRESS: AtomicBool = AtomicBool::new(false);
 
 #[panic_handler]
 fn panic(info: &core::panic::PanicInfo) -> ! {
@@ -15,6 +18,16 @@ fn panic(info: &core::panic::PanicInfo) -> ! {
 
 #[unsafe(no_mangle)]
 pub fn __panic_handler(info: &core::panic::PanicInfo) -> ! {
+    if PANIC_IN_PROGRESS.load(Ordering::Acquire) {
+        println!(
+            "DOUBLE PANIC detected! Reason: {:?}",
+            info.message().as_str().unwrap_or("")
+        );
+        loop {}
+    }
+    
+    PANIC_IN_PROGRESS.store(true, Ordering::Release);
+    
     println!(
         "(__panic_handler) panic at {:?}, reason: {:?}",
         info.location().unwrap(),
@@ -35,6 +48,12 @@ pub fn print_stack_trace() {
         println!("callback...");
         let data = unsafe { &mut *(arg as *mut CallbackData) };
         data.counter += 1;
+        
+        if data.counter > 100 {
+            println!("Stack trace limit reached (100 frames), stopping to prevent infinite loop");
+            return UnwindReasonCode::END_OF_STACK;
+        }
+        
         let pc = _Unwind_GetIP(unwind_ctx);
         if pc > 0 {
             let fde_initial_address = _Unwind_FindEnclosingFunction(pc as *mut c_void) as usize;
