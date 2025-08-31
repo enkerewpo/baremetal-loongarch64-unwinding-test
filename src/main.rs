@@ -55,7 +55,7 @@ pub extern "C" fn _start() -> ! {
                 csrwr		$r12, {LOONGARCH_CSR_CRMD}
                 li.w		$r12, 0x04		    // PLV=0, PIE=1, PWE=0
                 csrwr		$r12, {LOONGARCH_CSR_PRMD}
-                li.w		$r12, 0x00		    // FPE=0, SXE=0, ASXE=0, BTE=0
+                li.w		$r12, 0x01		    // FPE=1, SXE=0, ASXE=0, BTE=0
                 csrwr		$r12, {LOONGARCH_CSR_EUEN}
     
                 csrrd       $r4, {CSR_CPUID}
@@ -124,7 +124,7 @@ pub extern "C" fn rust_main() -> ! {
 
     // test_vtimer();
 
-    // panic!("test panic! (rust)");
+    panic!("test panic! (rust)");
 
     println!("going to idle loop, the main function is done");
     loop {

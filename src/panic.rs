@@ -25,9 +25,9 @@ pub fn __panic_handler(info: &core::panic::PanicInfo) -> ! {
         );
         loop {}
     }
-    
+
     PANIC_IN_PROGRESS.store(true, Ordering::Release);
-    
+
     println!(
         "(__panic_handler) panic at {:?}, reason: {:?}",
         info.location().unwrap(),
@@ -45,15 +45,15 @@ pub fn print_stack_trace() {
         counter: usize,
     }
     extern "C" fn callback(unwind_ctx: &UnwindContext<'_>, arg: *mut c_void) -> UnwindReasonCode {
-        println!("callback...");
+        // println!("callback...");
         let data = unsafe { &mut *(arg as *mut CallbackData) };
         data.counter += 1;
-        
+
         if data.counter > 100 {
             println!("Stack trace limit reached (100 frames), stopping to prevent infinite loop");
             return UnwindReasonCode::END_OF_STACK;
         }
-        
+
         let pc = _Unwind_GetIP(unwind_ctx);
         if pc > 0 {
             let fde_initial_address = _Unwind_FindEnclosingFunction(pc as *mut c_void) as usize;
@@ -73,7 +73,21 @@ pub fn print_stack_trace() {
             }
             print!(" {} {:#18x};", reg_name, reg_i);
         }
-        print!("\n\n");
+        print!("\n");
+        // then print 8 floating point registers
+        #[cfg(target_feature = "d")]
+        {
+            for i in 0..8u16 {
+                let reg_i = _Unwind_GetGR(unwind_ctx, 32 + i as i32);
+                let reg_name =
+                    gimli::LoongArch::register_name(Register(32 + i)).unwrap_or("unknown");
+                if i % 4 == 0 {
+                    print!("\n    ");
+                }
+                print!(" {} {:#18x};", reg_name, reg_i);
+            }
+            print!("\n");
+        }
         UnwindReasonCode::NO_REASON
     }
 

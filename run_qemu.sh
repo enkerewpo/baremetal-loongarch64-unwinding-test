@@ -4,6 +4,8 @@ set -e
 
 DEBUG=${DEBUG:-0}
 TARGET=loongarch64-unknown-none-softfloat
+# TARGET=loongarch64-unknown-none
+
 ELF_FILE="target/$TARGET/debug/baremetal-loongarch64-test"
 
 if [ ! -f "$ELF_FILE" ]; then

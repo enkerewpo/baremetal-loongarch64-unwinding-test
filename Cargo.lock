@@ -113,9 +113,7 @@ checksum = "b0293f99756f16ff352cc78c99673766a305bdb5ed7652e78df649e9967c885a"
 
 [[package]]
 name = "unwinding"
-version = "0.2.7"
+version = "0.2.8"
 dependencies = [
  "gimli",
- "ns16550a",
- "spin 0.9.8",
 ]
