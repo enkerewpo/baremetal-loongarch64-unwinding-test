@@ -15,7 +15,7 @@ loongArch64 = "0.2.5"
 path = "../unwinding" # my porting fork for loongarch64
 default-features = false
 features = ["fde-gnu-eh-frame-hdr", "panic", "personality", "unwinder"]
-# features = ["fde-gnu-eh-frame-hdr", "panic", "personality", "unwinder"]
+# features = ["fde-gnu-eh-frame-hdr", "panic", "personality", "unwinder", "baremetal-debug"]
 
 [dependencies.gimli]
 version = "0.32.2"

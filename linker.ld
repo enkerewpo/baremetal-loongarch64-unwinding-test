@@ -41,7 +41,7 @@ SECTIONS
         *(.bss .bss.*)
         *(COMMON)
         __stack_start = .;
-        . += 0x10000;  // Increase stack size to 64KB
+        . += 0x1000000;
         . = ALIGN(8);  // Ensure 64-bit pointer alignment
         __stack_end = .;
     }
